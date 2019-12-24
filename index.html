@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <nav id="navbar">
+            <header id="nav-title">
+                Modelling with Sympy
+            </header>
+            <a class="nav-link" href="#Requirements">Requirements</a>
+            <a class="nav-link" href="#Setting_up_Sympy">Setting up Sympy</a>
+            <a class="nav-link" href="#A_simple_Sympy_program">A simple Sympy program</a>
+            <a class="nav-link" href="#Using_Sympy">Using Sympy</a>
+            <a class="nav-link" href="#Variable_declaration">Variable declaration</a>
+            <a class="nav-link" href="#Building_a_model">Building a model</a>
+            <a class="nav-link" href="#Guidlines">Guidlines</a>
+        </nav>
+        <main id="main-doc">
+            <section class="main-section" id="Requirements">
+                <header>
+                    Requirements
+                </header>
+                <p>To follow this tutorial make sure you have:</p>
+                <ul>
+                    <li>Any Linux distribution installed</li>
+                    <li>Python installed.</li>
+                </ul>
+                <p>If you have these, you're ready to go!</p>
+            </section>
+            <section class="main-section" id="Setting_up_Sympy">
+                <header>
+                    Setting up Sympy
+                </header>
+                <p>
+                    Before we start, let’s create a directory called Job and move into it:
+                    <code>mkdir Job
+                    cd Job
+                    </code>
+                    this is where we will work from now on.
+                    let’s install Sympy using pip:
+                    <code>pip install sympy --user</code>
+                    the “–user” part is important if you are not the admin.
+                </p>
+            </section>            
+            <section class="main-section"  id="A_simple_Sympy_program">
+                <header>
+                    A simple Sympy program
+                </header>
+                <p>
+                    To launch Python paste this in the terminal:
+                    python3
+                    Run this code in the python3 interpreter:
+                    <code>from sympy import * # you need this line every time before you use sympy.
+                        init_printing()
+                        x = Symbol('x') # symbol declaration
+                        exp = x**2 - 1 *(sqrt(1/x)) # expression declaration
+                        I = Integral(exp, x)
+                        I_sol = integrate(exp, x)
+                        pprint(Eq(I, I_sol))
+                    </code>
+                    If everything is set up correctly, you should see something like this:
+                    You can check manually to see that this is indeed the correct answer.
+                </p>
+            </section>            
+            <section class="main-section"  id="Using_Sympy">
+                <header>
+                    Using Sympy
+                </header>
+                <p>
+                    We will now go through the the analysis of a simple activating model to explain how one should try new models:
+                </p>
+            </section>            
+            <section class="main-section"  id="Variable_declaration">
+                <header>
+                    Variable declaration
+                </header>
+                <p>
+                    here is a simple example of declaraing variables in Sympy:
+                    <code>x,y = symbols('y,x') # symbol definition
+                    F = x**3 + y*2 # build a simple expression
+                    pprint(F) # print nicely</code>
+                    here is the result:
+                    From this simple example you can see that what’s in the parenthes is what defines our symbols and will determine how the expression will be printed out, the order is very important.
+                    Several things you should know about the symbol definition:
+                </p>
+                    <ul>
+                        <li>the _ (underscore) means subscript.</li>
+                        <li>the ^ (power) means upperscript.</li>
+                        <li>greek letter should be written in full e.g. “sigma”, “beta” etc.</li>
+                        <li>the symbol does not affect the calculation, If a symbol is defined like this:</li>
+                    </ul>
+                <p>
+                    <code>x = symbols('x*2') # 'x*2' is not a multiplication it is a visual representation
+                    F = x**3
+                    F = F.subs(x,1)
+                    pprint(F)</code>
+                    the result will be that every instance of x in the expression will be replaced in printing by x*2, but if you would substitute 1 for x you will get 1 not 2 when printing.
+                    After building your system of ODEs you should have a list of variables and parameters. They should be declared like this:
+                    <code># Variables:
+                    # activating side
+                    Calck,La,Ra,Ca,pCa,K,pK,pCapk,pCak = symbols('C_ALCK,L_A,R_A,C_A,pC_A,K^0,pK,pC_ApK,pC_AK,')
+                    # inhibitory side
+                    Cilck,Li,Ri,Ci,pCi,P,pP,pCipp,pCip = symbols('C_ILCK,L_I,R_I,C_I,pC_I,P^0,pP,pC_IpP,pC_IP')
+                    # substrate side
+                    S,pS = symbols('S^0,pS')
+                    # special
+                    LCK,ENZ =  symbols('LCK,ENZ')
+                    # Parameters:
+                    # activating side
+                    β2,σ2,σk,βk,σa,βa,φa,φk,δk,δa,λk = symbols(
+                        'beta_2,sigma_2,sigma_K,beta_K,sigma_A,beta_A,phi_A,phi_K,delta_K,delta_A,lambda_K')
+                    # inhibitory side
+                    β3,σ3,σp,βp,σi,βi,φi,φp,δp,δi,λp = symbols(
+                        'beta_3,sigma_3,sigma_P,beta_P,sigma_I,beta_I,phi_I,phi_P,delta_P,delta_I,lambda_P')
+                    # substrate side
+                    φs,δs = symbols('phi_S,delta_S')
+                    </code>
+                    The declarations are split here across several lines for clarity; it is possible to declare everything on one line. As you can see we first write out the variables without parenthesis, then through the symbols method we describe how they will look in an expression.
+                </p>
+            </section>            
+            <section class="main-section"  id="Building_a_model">
+                <header>
+                    Building a model
+                </header>
+                <p>
+                    Here is a simple system of equation defined, it describes the activating side of the signaling model in NK cells with no dephosphorylations, no two step mechanisms.
+                    To input the system into sympy declare all variables and parameters as seen above, and run this:
+                    <code># S1 stands for System 1.
+                    S1 = [
+                        σa*Ca- βa*(La)*(Ra),
+                        βa*(La)*(Ra) -(σa+φa*LCK)*Ca,
+                        φa*Ca*LCK +λk*pCapk -φk*pCa*(K) ,
+                        φk*pCa*(K) -λk*pCapk,
+                        -φk*pCa*(K),
+                        λk*pCapk
+                        ]</code>
+                    <b>Copying and pasting does not always keep the indentation so make sure to insert the code with tabs correctly, otherwise you will get an error.</b><br><br>
+                    S is now a list containing all of our 6 equations; notice we don’t care that these are differential equations at all; we only want to find a steady state in terms of pCapk.
+                </p>
+            </section>        
+            <section class="main-section"  id="Guidlines">
+                <header>
+                    Guidlines
+                </header>
+                <p>Here are some things you should consider when trying to solve a system of nonlinear equations using Sympy:</p>
+                <ul>
+                    <li>Simplify everything, add brackets, avoid ambiguity at all costs.</li>
+                    <li>the “” part is infered, no need to add it.</li>
+                    <li>Sympy should be able to handle overdetermined and underdetermined systems but if you can cut out any variable, do it.</li>
+                </ul>
+                <p>
+                    Let’s see if our guidlines change our model in any way: Since we are dealing with a dynamical system we could get rid of some variables like , It starts out at some  and then loses and gains back from  so every instance of  can be replaced with  and now our system has one less variable to take account for.
+                    Let’s make that change in our model:
+                    <code>K = symbols('K^0') # redefine K as K^0
+                        for index,eq in enumerate(S1):
+                            S1[index] = eq.subs(K, (K-pK-pCapk)) # susbstitute k for (K-pK-pCapk).
+                            pprint(S1[index]) # press enter twice after this line.
+                    </code>
+                    make sure to press enter twice after the last line of the loop, this closes the loop
+                    Now that our model fits the requirements let’s try to solve it:
+                    We want a solution in terms of , but we need to specify that we also want to solve for the other variables as well, namely . So we will make a list of these variables and give them as an argument to the solving method. Everything that is not in the list will be taken to be a constant parameter.
+                    <code>solve_for = [pCapk,Ca, pCa, pK]
+                        nonlinsolve(S1, solve_for)
+                    </code>
+                    We got two sets of solutions each in the order of our list. Notice there isn’t any meaningfull difference between them. Since the reason we have  is that there isn’t anything else in that equation, maybe adding a dephosphorylation in the pK and K equations will change the outcome:
+                    <code>S1[5] += -δk*pK
+                        S1[4] += +δk*pK
+                        nonlinsolve(S1, solve_for)
+                    </code>
+                    That’s better, but now the solution of  is entirely dependent on . Does that make sense? Yes and No. We know that the determining factor to how much  will be is , so we would like the solution to take this into account, To do that we should understand what happens with the precursors of .
+                    the steps are as follows:
+                    Because the second step is irreversible, all of the initial  becomes  and . In other words  should equal .
+                    <code>solve_for = [pCapk,pK]
+                        La0 = symbols('L_A^0') # add parameter La0
+                        for index,eq in enumerate(S1):
+                          S1[index] = eq.subs(pCa, La0-pCapk) # susbstitute pCa for La0. # press enter twice after this line.
+                        
+                        nonlinsolve(S1, solve_for)
+                    </code>
+                    <b>Reminder: Copying and pasting does not keep the indentation so make sure to insert the code with tabs correctly, otherwise you will get an error.</b><br><br>
+                    this is the result in terms of pCapk is pretty scary, but notice that nothing here is of order higher than 1 in terms of . This means this model will not grant us any threshold behavior, so we can discard it.
+                    Since the work for the activating side of the model is almost identical to the work needed on the inhibitory side, all that is left to do is solve the inhibitory side and implement the solutions of both sides in the substrate system of equations. This will yield a solution in terms of , if any exist.
+                    This was a brief overview on how to design a model for NK cell signaling in Sympy. 
+                    More information regarding Sympy can be found in the 
+                    <a href="https://docs.sympy.org/latest/index.html">Sympy documentation.</a> 
+                </p>
+            </section>              
+        </main>        
+    </body>
+</html>
